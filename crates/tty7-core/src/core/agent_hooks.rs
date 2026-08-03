@@ -280,10 +280,19 @@ pub struct HookTarget<'a> {
 
 impl<'a> HookTarget<'a> {
     pub fn local(host: &'a dyn Host) -> Option<HookTarget<'a>> {
+        Self::local_for_exe(host, std::env::current_exe().ok()?)
+    }
+
+    /// Build a local target for a known tty7 hook runner.
+    ///
+    /// Most callers use [`Self::local`]. The standalone CLI is the exception:
+    /// it diagnoses hooks but does not execute them, so it supplies the
+    /// bundled `tty7-app` beside it instead of comparing configs to `tty7`.
+    pub fn local_for_exe(host: &'a dyn Host, exe: PathBuf) -> Option<HookTarget<'a>> {
         Some(HookTarget {
             host,
             home: home_dir()?,
-            exe: std::env::current_exe().ok()?,
+            exe,
         })
     }
 
